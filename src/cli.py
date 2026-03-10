@@ -39,16 +39,16 @@ def main(argv: list[str] | None = None) -> int:
     output_path = Path(args.output) if args.output else Path("output") / f"{input_path.stem}_digest.md"
 
     raw_posts = load_posts(input_path)
-    digest_items = run_pipeline(raw_posts, min_words=args.min_words)
+    result = run_pipeline(raw_posts, min_words=args.min_words)
     written_path = export_digest(
-        digest_items,
+        result,
         output_path,
         source_path=input_path,
         total_posts=len(raw_posts),
     )
 
     print(f"Wrote digest to {written_path}")
-    print(f"Selected {len(digest_items)} of {len(raw_posts)} posts")
+    print(f"Selected {len(result.items)} of {len(raw_posts)} posts")
     return 0
 
 

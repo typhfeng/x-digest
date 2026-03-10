@@ -1,0 +1,75 @@
+Read AGENTS.md first.
+
+Refactor x-digest from the current phase-1 local MVP into a cleaner research pipeline.
+
+Current pipeline:
+normalize -> filter -> summarize
+
+Target pipeline:
+normalize -> filter -> cluster -> rank -> summarize -> export
+
+Requirements:
+- preserve current behavior for local JSON input
+- split core logic into separate modules:
+  - src/core/normalize.py
+  - src/core/filter.py
+  - src/core/cluster.py
+  - src/core/rank.py
+  - src/core/summarize.py
+  - src/core/pipeline.py
+- keep src/cli.py as a thin entrypoint
+- extend digest data structures to support:
+  - topic
+  - score
+  - tags
+  - why_selected optional
+- implement heuristic topic clustering with a simple keyword map
+- implement deterministic importance scoring
+- do not add any external API or LLM yet
+- keep tests deterministic
+- update markdown export so output is grouped by topic and ordered by score
+- update README with the new architecture
+
+Topic clustering guidance:
+- Use a simple keyword map first
+- Start with topics such as:
+  - ai
+  - semiconductor
+  - macro
+  - space
+  - software
+  - general
+- If no keyword matches, assign general
+
+Ranking guidance:
+- Use deterministic scoring only
+- Example signals:
+  - keyword/topic match strength
+  - word count
+  - has URL
+  - priority authors from config or a local default set
+- Keep the formula simple and explainable
+
+Output format guidance:
+- The markdown digest should include:
+  - title/date
+  - source path
+  - selected vs total counts
+  - key topics
+  - for each topic:
+    - topic summary
+    - selected posts sorted by score
+    - why selected
+    - url if available
+
+Validation:
+- run the CLI with data/sample_posts.json
+- run the tests
+- add or update tests for topic assignment and ranking
+- summarize changed files and remaining gaps before LLM integration
+
+Work style:
+- inspect the current repository first
+- make focused incremental edits
+- avoid unrelated rewrites
+- keep the project runnable throughout

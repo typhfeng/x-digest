@@ -1,6 +1,13 @@
 import unittest
 
-from src.core.pipeline import filter_posts, normalize_posts, run_pipeline
+from src.core.pipeline import (
+    assign_topic,
+    cluster_posts,
+    filter_posts,
+    normalize_posts,
+    rank_posts,
+    run_pipeline,
+)
 
 
 class PipelineTests(unittest.TestCase):
@@ -44,8 +51,48 @@ class PipelineTests(unittest.TestCase):
 
         self.assertEqual([post.id for post in filtered], ["2"])
 
-    def test_run_pipeline_produces_deterministic_summaries(self) -> None:
-        items = run_pipeline(
+    def test_assign_topic_uses_keyword_map_and_falls_back_to_general(self) -> None:
+        ai_topic, ai_tags, ai_strength = assign_topic(
+            "Evaluation teams improved inference latency with better embeddings."
+        )
+        general_topic, general_tags, general_strength = assign_topic(
+            "A quiet day with broad observations and no obvious domain terms."
+        )
+
+        self.assertEqual(ai_topic, "ai")
+        self.assertEqual(ai_tags, ("embeddings", "evaluation", "inference"))
+        self.assertGreaterEqual(ai_strength, 2)
+        self.assertEqual(general_topic, "general")
+        self.assertEqual(general_tags, ())
+        self.assertEqual(general_strength, 0)
+
+    def test_rank_posts_scores_priority_authors_and_urls_deterministically(self) -> None:
+        normalized = normalize_posts(
+            [
+                {
+                    "id": "1",
+                    "author": "researchops",
+                    "text": "Evaluation pipelines improved inference with cached embeddings and deterministic fixtures.",
+                    "url": "https://example.com/1",
+                },
+                {
+                    "id": "2",
+                    "author": "observer",
+                    "text": "Evaluation pipelines improved inference with cached embeddings and deterministic fixtures.",
+                },
+            ]
+        )
+
+        clustered = cluster_posts(normalized)
+        ranked = rank_posts(clustered)
+
+        self.assertGreater(ranked[0].score, ranked[1].score)
+        self.assertIn("priority_author=yes", ranked[0].why_selected or "")
+        self.assertIn("has_url=yes", ranked[0].why_selected or "")
+        self.assertIn("has_url=no", ranked[1].why_selected or "")
+
+    def test_run_pipeline_produces_topics_scores_and_summaries(self) -> None:
+        result = run_pipeline(
             [
                 {
                     "id": "1",
@@ -55,11 +102,15 @@ class PipelineTests(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(len(items), 1)
+        self.assertEqual(len(result.items), 1)
         self.assertEqual(
-            items[0].summary,
+            result.items[0].summary,
             "Summary: Deterministic local fixtures make pipeline tests cheaper to run and easier to debug.",
         )
+        self.assertEqual(result.items[0].topic, "software")
+        self.assertGreater(result.items[0].score, 0)
+        self.assertEqual(result.items[0].tags, ("fixtures", "pipeline", "tests"))
+        self.assertIn("software", result.topic_summaries)
 
 
 if __name__ == "__main__":
