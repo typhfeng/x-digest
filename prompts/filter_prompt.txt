@@ -1,0 +1,10 @@
+Filter meaningful posts.
+
+Criteria:
+
+1 insight
+2 news
+3 technical
+4 macro signal
+
+Remove spam / ads
