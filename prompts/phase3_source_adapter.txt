@@ -1,0 +1,6 @@
+Implement source adapter architecture.
+
+Adapters:
+- local json
+- API adapter placeholder
+- scraping adapter placeholder

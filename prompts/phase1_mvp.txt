@@ -1,0 +1,13 @@
+Implement phase 1 for x-digest.
+
+Goal:
+Build a runnable Python MVP that reads posts from local JSON and exports a markdown digest.
+
+Pipeline:
+ingest -> normalize -> filter -> summarize -> export
+
+Deliverables:
+- runnable CLI
+- sample data
+- markdown output
+- minimal tests

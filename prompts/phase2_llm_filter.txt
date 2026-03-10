@@ -1,0 +1,6 @@
+Implement LLM-based filtering and summarization.
+
+Goals:
+- pluggable provider interface
+- rule-based fallback
+- prompt templates stored in prompts/

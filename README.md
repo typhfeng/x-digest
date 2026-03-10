@@ -1,7 +1,8 @@
 # x-digest
 
-AI powered X (Twitter) digest generator.
+AI-agent based research digest generator for X-like content.
 
-Pipeline
+Pipeline:
+ingest → normalize → filter → cluster → summarize → export
 
-Fetch → Filter → Summarize → Export
+This repository is structured for agent-driven development (Codex CLI, GPT, etc.).
