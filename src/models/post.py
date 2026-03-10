@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 
-@dataclass
+
+@dataclass(frozen=True, slots=True)
 class Post:
+    """Normalized post model used by the local MVP pipeline."""
+
     id: str
     author: str
     text: str
