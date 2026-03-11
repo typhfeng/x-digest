@@ -7,6 +7,7 @@ from src.core.pipeline import (
     normalize_posts,
     rank_posts,
     run_pipeline,
+    score_post,
 )
 
 
@@ -18,6 +19,7 @@ class PipelineTests(unittest.TestCase):
                     "id": " 42 ",
                     "author": " @example ",
                     "text": "  spaced   text here  ",
+                    "title": " Example title ",
                     "url": " https://example.com/post ",
                     "created_at": " 2026-03-10 ",
                 }
@@ -27,6 +29,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(normalized[0].id, "42")
         self.assertEqual(normalized[0].author, "example")
         self.assertEqual(normalized[0].text, "spaced text here")
+        self.assertEqual(normalized[0].title, "Example title")
         self.assertEqual(normalized[0].url, "https://example.com/post")
         self.assertEqual(normalized[0].created_at, "2026-03-10")
 
@@ -66,6 +69,21 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(general_tags, ())
         self.assertEqual(general_strength, 0)
 
+    def test_assign_topic_covers_requested_topic_buckets(self) -> None:
+        cases = [
+            ("AI inference models rely on embeddings and eval fixtures.", "ai"),
+            ("GPU foundry and wafer capacity remain tight for the chip supply chain.", "semiconductor"),
+            ("Fed inflation data pushed treasury yield and rates higher.", "macro"),
+            ("Rocket launch teams moved the payload into orbit for the satellite mission.", "space"),
+            ("Local pipeline tests validate the software adapter and queue changes.", "software"),
+            ("A broad discussion without domain keywords should stay general.", "general"),
+        ]
+
+        for text, expected_topic in cases:
+            with self.subTest(expected_topic=expected_topic):
+                topic, _tags, _strength = assign_topic(text)
+                self.assertEqual(topic, expected_topic)
+
     def test_rank_posts_scores_priority_authors_and_urls_deterministically(self) -> None:
         normalized = normalize_posts(
             [
@@ -91,6 +109,16 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("has_url=yes", ranked[0].why_selected or "")
         self.assertIn("has_url=no", ranked[1].why_selected or "")
 
+    def test_score_post_uses_simple_explainable_formula(self) -> None:
+        score = score_post(
+            topic_match_strength=3,
+            word_count=24,
+            has_url=True,
+            priority_author=True,
+        )
+
+        self.assertEqual(score, 69)
+
     def test_run_pipeline_produces_topics_scores_and_summaries(self) -> None:
         result = run_pipeline(
             [
@@ -110,6 +138,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result.items[0].topic, "software")
         self.assertGreater(result.items[0].score, 0)
         self.assertEqual(result.items[0].tags, ("fixtures", "pipeline", "tests"))
+        self.assertIsNotNone(result.items[0].why_selected)
         self.assertIn("software", result.topic_summaries)
 
 

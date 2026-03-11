@@ -36,8 +36,8 @@ The output markdown includes:
 - selected versus total post counts
 - key topics
 - per-topic summaries
-- selected posts sorted by score within each topic
-- why-selected metadata, tags, and source URLs when present
+- selected posts grouped by topic and sorted by score
+- per-post title/date, score, author, URL, why-selected metadata, tags, and short summary
 
 Run tests:
 

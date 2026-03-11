@@ -8,5 +8,6 @@ class Post:
     id: str
     author: str
     text: str
+    title: str | None = None
     url: str | None = None
     created_at: str | None = None

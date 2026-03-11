@@ -16,6 +16,7 @@ def normalize_posts(raw_posts: list[dict[str, Any]]) -> list[Post]:
         post_id = str(raw_post.get("id", "")).strip()
         author = str(raw_post.get("author", "")).strip().lstrip("@")
         text = _collapse_whitespace(str(raw_post.get("text", "")))
+        title = _normalize_optional(raw_post.get("title"))
         url = _normalize_optional(raw_post.get("url"))
         created_at = _normalize_optional(raw_post.get("created_at"))
 
@@ -31,6 +32,7 @@ def normalize_posts(raw_posts: list[dict[str, Any]]) -> list[Post]:
                 id=post_id,
                 author=author,
                 text=text,
+                title=title,
                 url=url,
                 created_at=created_at,
             )
