@@ -1,0 +1,69 @@
+Read AGENTS.md first.
+Then read ROADMAP.md, PROJECT_STATE.md, and TASK_QUEUE.md.
+
+Complete Phase 5 for x-digest: lightweight research memory.
+
+Goals:
+- add a simple memory layer for tracking research context across runs
+- detect whether a topic is new or recurring
+- support priority author tracking
+- keep the project runnable locally without external services
+- keep the core pipeline and adapter architecture intact
+
+Requirements:
+- use a simple local storage format first, such as JSON or YAML
+- do not introduce a database yet
+- keep dependencies minimal
+- use type hints
+- keep behavior deterministic and testable
+
+Architecture requirements:
+- add a memory module under a suitable location such as:
+  - src/memory/
+- track at least:
+  - topic history across runs
+  - priority authors
+  - recent digest metadata
+- update the pipeline or export layer so digest output can include memory-aware annotations
+
+Behavior requirements:
+- detect and label:
+  - new topic
+  - recurring topic
+  - priority author
+- memory should update after a successful digest generation
+- if memory files do not exist yet, initialize them cleanly
+- if memory is unavailable or corrupted, fail gracefully and keep digest generation working
+
+Output requirements:
+- preserve current digest readability
+- add memory-aware annotations in a simple way
+- do not overcomplicate the markdown format
+
+Tests:
+- add/update tests for:
+  - memory initialization
+  - recurring topic detection
+  - priority author detection
+  - graceful fallback when memory files are missing or invalid
+
+Documentation and state tracking:
+- update README
+- update ROADMAP.md
+- update PROJECT_STATE.md
+- update TASK_QUEUE.md
+
+Git requirements:
+- commit changes
+- create an annotated tag for this phase
+- do not push automatically
+- report the exact git push commands for the user
+
+Suggested git metadata:
+- commit message: Phase5: add lightweight research memory
+- tag: v0.6-phase5
+
+Validation:
+- run the CLI against data/sample_posts.json
+- run the tests
+- fix failures before finishing
