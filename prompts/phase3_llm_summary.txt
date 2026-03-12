@@ -1,0 +1,75 @@
+Read AGENTS.md first.
+Then read ROADMAP.md, PROJECT_STATE.md, and TASK_QUEUE.md.
+
+Complete Phase 3 for x-digest: optional LLM summarization.
+
+Goals:
+- add an LLM provider abstraction
+- keep rule-based fallback behavior when no LLM is configured
+- generate topic-level summaries
+- generate improved why_selected explanations for selected posts
+- keep the project runnable locally without any API key
+
+Requirements:
+- preserve the existing local JSON workflow
+- do not add real X source integration yet
+- do not break the current CLI contract
+- keep dependencies minimal
+- use type hints
+- keep tests deterministic where possible
+
+Architecture requirements:
+- add a provider abstraction under a suitable location such as:
+  - src/llm/
+  - or src/providers/
+- support an OpenAI-compatible provider first
+- provider should be optional and config-driven
+- add prompt templates in a dedicated prompts/templates or similar directory
+- keep rule-based summarization available as fallback
+
+Behavior requirements:
+- if no LLM credentials are configured, the app should run in fallback mode
+- if LLM mode is enabled and credentials are available, use the provider to:
+  - generate a concise per-topic summary
+  - improve per-post why_selected text
+- failures in LLM calls should degrade gracefully to fallback behavior
+
+Configuration requirements:
+- read settings from environment variables and/or config file
+- clearly document required variables
+- do not hardcode secrets
+
+Markdown output requirements:
+- include topic-level summary text
+- keep posts grouped by topic
+- keep posts ordered by score
+- include why_selected text
+- preserve readability for local research use
+
+Tests:
+- add/update tests for:
+  - fallback behavior without API key
+  - provider selection logic
+  - pipeline still works in rule-based mode
+- avoid brittle tests against exact LLM wording
+
+Documentation and state tracking:
+- update README
+- update ROADMAP.md
+- update PROJECT_STATE.md
+- update TASK_QUEUE.md
+
+Git requirements:
+- commit changes
+- create an annotated tag for this phase
+- do not push automatically
+- report the exact git push commands for the user
+
+Suggested git metadata:
+- commit message: Phase3: add optional LLM summarization with fallback
+- tag: v0.4-phase3
+
+Validation:
+- run the CLI against data/sample_posts.json
+- run the tests
+- fix failures before finishing
