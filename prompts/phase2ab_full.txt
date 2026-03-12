@@ -1,0 +1,111 @@
+Read AGENTS.md first.
+Then read ROADMAP.md, PROJECT_STATE.md, and TASK_QUEUE.md.
+
+Complete both Phase 2A and Phase 2B for x-digest in this repository.
+
+Goals:
+- Phase 2A: refactor the current MVP into a cleaner research pipeline
+- Phase 2B: add heuristic topic clustering and deterministic importance ranking
+
+Current pipeline:
+normalize -> filter -> summarize
+
+Target pipeline:
+normalize -> filter -> cluster -> rank -> summarize -> export
+
+Required architecture:
+- src/core/normalize.py
+- src/core/filter.py
+- src/core/cluster.py
+- src/core/rank.py
+- src/core/summarize.py
+- src/core/pipeline.py
+- keep src/cli.py thin
+- keep adapters under src/adapters/
+
+Requirements:
+- preserve the local JSON workflow
+- do not add external APIs or LLMs yet
+- keep the project runnable throughout
+- keep tests deterministic
+- keep dependencies minimal
+- use type hints
+- avoid unrelated rewrites
+
+Data model changes:
+- extend digest item data to support:
+  - topic
+  - score
+  - tags
+  - why_selected optional
+
+Topic clustering:
+- implement a simple keyword-based topic assignment first
+- include topics such as:
+  - ai
+  - semiconductor
+  - macro
+  - space
+  - software
+  - general
+- assign general if no keyword matches
+
+Ranking:
+- implement deterministic scoring only
+- use simple explainable signals:
+  - topic keyword match strength
+  - word count
+  - has URL
+  - priority author bonus
+- keep the scoring formula simple
+
+Markdown export:
+- group output by topic
+- sort posts by score descending
+- include:
+  - title/date
+  - source path
+  - selected vs total count
+  - key topics
+  - per-topic summary
+  - for each selected post:
+    - score
+    - author
+    - url if available
+    - why selected
+    - short summary
+
+Tests:
+- add or update tests for:
+  - topic assignment
+  - ranking
+  - pipeline output shape
+  - CLI still works
+
+Documentation and status tracking:
+- update README with the new architecture and usage
+- update ROADMAP.md
+- update PROJECT_STATE.md
+- update TASK_QUEUE.md to reflect what is complete and what remains
+
+Git sync behavior:
+- do not push to GitHub
+- do not rewrite git history
+- after implementation, show:
+  1. architecture summary
+  2. files changed
+  3. commands run
+  4. validation results
+  5. exact suggested git commands for me to commit and push
+
+Validation:
+- run the CLI against data/sample_posts.json
+- run the test suite
+- fix any failures before finishing
+
+Definition of done:
+- phase 2A and 2B functionality implemented
+- tests passing
+- markdown digest grouped by topic and ordered by score
+- state tracking files updated
+- project remains runnable locally
