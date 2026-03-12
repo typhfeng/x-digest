@@ -3,7 +3,7 @@
 Last updated: 2026-03-12
 
 ## Current Phase
-Phase 4 – Source Adapters
+Phase 5 – Research Agent
 
 ---
 
@@ -49,9 +49,17 @@ Result: SUCCESS
 - made provider failures degrade gracefully back to deterministic markdown output
 - updated README and tests to document and validate fallback mode, provider selection, and LLM enhancement hooks
 
+### Phase 4 – Source Adapters
+- added a typed source adapter contract in `src/adapters/base.py`
+- kept `src/adapters/json_source.py` as the working default adapter and preserved `load_posts()` for backward compatibility
+- added explicit adapter selection through `src/adapters/registry.py` and `--source` in the CLI
+- added placeholder adapters for imported archives, the X API, and browser-assisted scraping with clear failure messages
+- kept `src/core/pipeline.py` unchanged so ingest selection stays separate from normalization, filtering, clustering, ranking, summarization, and export
+- expanded tests to cover adapter selection, JSON adapter behavior, placeholder failures, and CLI compatibility
+
 Validation
 
-python3 -m src.cli --input data/sample_posts.json --output output/sample_digest.md
+python3 -m src.cli --source json --input data/sample_posts.json --output output/sample_digest.md
 python3 -m unittest discover -s tests
 
 Result: SUCCESS
@@ -60,12 +68,10 @@ Result: SUCCESS
 
 ## Remaining Work
 
-1 Phase 4 source adapters beyond local JSON
-2 Phase 5 research-agent automation
+1 Phase 5 research-agent automation
 
 ---
 
 ## Future Phases
 
-Phase 4 – X data ingestion  
 Phase 5 – research agent

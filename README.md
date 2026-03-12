@@ -11,7 +11,10 @@ The local JSON workflow remains the reference path. Optional LLM enhancement is 
 
 The pipeline is modular and keeps deterministic behavior as the default:
 
-- `src/adapters/json_source.py` loads local JSON fixtures.
+- `src/adapters/base.py` defines the source adapter contract and shared adapter errors.
+- `src/adapters/registry.py` resolves explicit source names to adapters.
+- `src/adapters/json_source.py` keeps local JSON as the working default source.
+- `src/adapters/archive_source.py`, `src/adapters/x_api_source.py`, and `src/adapters/scraping_source.py` are placeholders that fail clearly until implemented.
 - `src/core/normalize.py` converts loose JSON objects into normalized `Post` records.
 - `src/core/filter.py` removes short or duplicate posts.
 - `src/core/cluster.py` assigns heuristic topics with a simple keyword map.
@@ -31,6 +34,21 @@ Generate a digest from the sample fixture:
 ```bash
 python3 -m src.cli --input data/sample_posts.json --output output/sample_digest.md
 ```
+
+The source can also be selected explicitly:
+
+```bash
+python3 -m src.cli --source json --input data/sample_posts.json --output output/sample_digest.md
+```
+
+Available source names:
+
+- `json` for the current local JSON workflow
+- `archive` placeholder for imported archive ingestion
+- `x_api` placeholder for future API ingestion
+- `scraping` placeholder for future browser-assisted ingestion
+
+Selecting a placeholder source currently returns a clear error and exits without changing the pipeline.
 
 The markdown output includes:
 
@@ -81,7 +99,7 @@ Usage example:
 ```bash
 export X_DIGEST_CONFIG=config/llm.json
 export OPENAI_API_KEY=your_api_key_here
-python3 -m src.cli --input data/sample_posts.json --output output/sample_digest.md
+python3 -m src.cli --source json --input data/sample_posts.json --output output/sample_digest.md
 ```
 
 When enabled and configured, the provider is used to:
@@ -96,3 +114,4 @@ The deterministic local pipeline still handles ingestion, normalization, filteri
 - Topic clustering is still keyword-based and intentionally simple.
 - Ranking remains local and explainable rather than learned.
 - Only an OpenAI-compatible provider is implemented in Phase 3.
+- Non-JSON source adapters are placeholders in Phase 4 and intentionally do not perform real API or scraping work yet.

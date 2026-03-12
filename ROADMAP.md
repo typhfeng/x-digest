@@ -78,7 +78,7 @@ Adapters:
 - X API placeholder
 - scraping placeholder
 
-Status: NOT STARTED
+Status: COMPLETE
 
 ---
 
