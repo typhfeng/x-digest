@@ -1,0 +1,73 @@
+Read AGENTS.md first.
+Then read ROADMAP.md, PROJECT_STATE.md, and TASK_QUEUE.md.
+
+Complete Phase 4 for x-digest: source adapter architecture.
+
+Goals:
+- define a clear source adapter interface
+- preserve local JSON as the default source
+- add placeholder adapters for:
+  - imported archive
+  - X API
+  - browser/scraping source
+- make source selection explicit and testable
+- keep the core research pipeline unchanged
+
+Requirements:
+- do not break the current local JSON workflow
+- do not implement brittle real scraping yet
+- keep the project runnable throughout
+- keep dependencies minimal
+- use type hints
+- keep adapters separate from core pipeline logic
+- preserve backward compatibility for the current CLI where practical
+
+Architecture requirements:
+- define a clear source adapter interface under src/adapters/ or a suitable location
+- keep json_source as a real working adapter
+- add placeholder implementations for:
+  - archive_source
+  - x_api_source
+  - scraping_source
+- add a registry or equivalent adapter-selection mechanism
+- update CLI so source type can be selected explicitly
+- default source should remain local JSON
+
+Behavior requirements:
+- local JSON remains the default source
+- placeholder adapters should fail clearly and helpfully if selected before implementation
+- adapter selection should be explicit and testable
+
+CLI requirements:
+- support a source selector such as --source
+- keep current usage working when possible
+- example target usage:
+  - python3 -m src.cli --source json --input data/sample_posts.json --output output/sample_digest.md
+
+Tests:
+- add/update tests for:
+  - adapter selection
+  - local JSON adapter behavior
+  - placeholder adapter error behavior
+  - CLI still works in default mode
+
+Documentation and state tracking:
+- update README
+- update ROADMAP.md
+- update PROJECT_STATE.md
+- update TASK_QUEUE.md
+
+Git requirements:
+- commit changes
+- create an annotated tag for this phase
+- do not push automatically
+- report the exact git push commands for the user
+
+Suggested git metadata:
+- commit message: Phase4: add source adapter architecture
+- tag: v0.5-phase4
+
+Validation:
+- run the CLI against data/sample_posts.json
+- run the tests
+- fix failures before finishing
