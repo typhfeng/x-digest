@@ -13,7 +13,15 @@ from src.core.summarize import summarize_posts, summarize_topics
 from src.llm.config import LlmSettings, load_llm_settings
 from src.llm.provider import LlmProvider, build_provider
 from src.llm.service import LlmDigestEnhancer
-from src.models.digest import ClusteredPost, DigestItem, PipelineResult, RankedPost
+from src.memory.models import ResearchMemorySnapshot
+from src.memory.service import annotate_result
+from src.models.digest import (
+    ClusteredPost,
+    DigestItem,
+    PipelineResult,
+    RankedPost,
+    TopicMemoryAnnotation,
+)
 from src.models.post import Post
 
 
@@ -26,6 +34,7 @@ def run_pipeline(
     max_summary_words: int = 18,
     llm_settings: LlmSettings | None = None,
     llm_provider: LlmProvider | None = None,
+    memory_snapshot: ResearchMemorySnapshot | None = None,
 ) -> PipelineResult:
     """Run normalize -> filter -> cluster -> rank -> summarize for local JSON input."""
     normalized = normalize_posts(raw_posts)
@@ -40,9 +49,10 @@ def run_pipeline(
     settings = llm_settings or load_llm_settings()
     provider = llm_provider or build_provider(settings)
     if provider is None:
-        return result
+        return annotate_result(result, memory_snapshot)
 
-    return LlmDigestEnhancer(provider).enhance(result)
+    enhanced = LlmDigestEnhancer(provider).enhance(result)
+    return annotate_result(enhanced, memory_snapshot)
 
 
 __all__ = [
@@ -54,6 +64,7 @@ __all__ = [
     "PipelineResult",
     "Post",
     "RankedPost",
+    "TopicMemoryAnnotation",
     "assign_topic",
     "build_provider",
     "cluster_posts",

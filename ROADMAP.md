@@ -82,14 +82,15 @@ Status: COMPLETE
 
 ---
 
-## Phase 5 – Research Agent
+## Phase 5 – Lightweight Research Memory
 Goal:
-Turn the pipeline into a reusable research assistant.
+Carry research context across local digest runs without adding external services.
 
 Features:
 - topic memory
 - priority account tracking
-- trend detection
+- recent digest metadata
+- memory-aware digest annotations
 - recurring digest workflow
 
-Status: NOT STARTED
+Status: COMPLETE

@@ -13,6 +13,7 @@ class CliTests(unittest.TestCase):
     def test_cli_writes_markdown_digest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = Path(tmp_dir) / "digest.md"
+            memory_dir = Path(tmp_dir) / "memory"
             stdout = io.StringIO()
 
             with patch.dict(os.environ, {}, clear=True):
@@ -23,6 +24,8 @@ class CliTests(unittest.TestCase):
                             "data/sample_posts.json",
                             "--output",
                             str(output_path),
+                            "--memory-dir",
+                            str(memory_dir),
                         ]
                     )
 
@@ -37,10 +40,12 @@ class CliTests(unittest.TestCase):
             self.assertIn("Key Topics:", content)
             self.assertIn("## ai", content)
             self.assertIn("## software", content)
+            self.assertIn("Memory: new topic", content)
             self.assertIn("- Score:", content)
             self.assertIn("- Summary:", content)
             self.assertNotIn("- Summary: Summary:", content)
             self.assertIn("Why selected:", content)
+            self.assertIn("- Memory: priority author", content)
             self.assertIn("@researchops", content)
             self.assertNotIn("gm", content)
             self.assertIn("Wrote digest to", stdout.getvalue())
@@ -48,6 +53,7 @@ class CliTests(unittest.TestCase):
     def test_cli_accepts_explicit_json_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = Path(tmp_dir) / "digest.md"
+            memory_dir = Path(tmp_dir) / "memory"
 
             with patch.dict(os.environ, {}, clear=True):
                 exit_code = main(
@@ -58,6 +64,8 @@ class CliTests(unittest.TestCase):
                         "data/sample_posts.json",
                         "--output",
                         str(output_path),
+                        "--memory-dir",
+                        str(memory_dir),
                     ]
                 )
 

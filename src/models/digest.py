@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from src.models.post import Post
 
@@ -37,6 +37,15 @@ class DigestItem:
     summary: str
     tags: tuple[str, ...] = ()
     why_selected: str | None = None
+    memory_labels: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class TopicMemoryAnnotation:
+    """Memory-derived metadata for a topic in the current digest."""
+
+    label: str
+    prior_digest_count: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,3 +54,4 @@ class PipelineResult:
 
     items: tuple[DigestItem, ...]
     topic_summaries: dict[str, str]
+    topic_memory: dict[str, TopicMemoryAnnotation] = field(default_factory=dict)

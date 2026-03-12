@@ -7,6 +7,7 @@ from pathlib import Path
 from src.adapters import SourceAdapterError, SourceRequest, get_source_adapter, list_source_names
 from src.adapters.markdown_export import export_digest
 from src.core.pipeline import run_pipeline
+from src.memory.store import ResearchMemoryStore
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -35,6 +36,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=6,
         help="Minimum word count required for a post to be included.",
     )
+    parser.add_argument(
+        "--memory-dir",
+        default="state/memory",
+        help="Directory for local JSON research memory. Defaults to state/memory.",
+    )
     return parser
 
 
@@ -53,13 +59,31 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     raw_posts = load_result.posts
-    result = run_pipeline(raw_posts, min_words=args.min_words)
+    memory_store = ResearchMemoryStore(Path(args.memory_dir))
+    memory_snapshot = memory_store.load()
+    for warning in memory_snapshot.warnings:
+        print(f"Memory warning: {warning}", file=sys.stderr)
+
+    result = run_pipeline(
+        raw_posts,
+        min_words=args.min_words,
+        priority_authors=memory_snapshot.priority_authors,
+        memory_snapshot=memory_snapshot,
+    )
     written_path = export_digest(
         result,
         output_path,
         source_path=load_result.source_label,
         total_posts=len(raw_posts),
     )
+    for warning in memory_store.record_digest(
+        snapshot=memory_snapshot,
+        result=result,
+        source_path=load_result.source_label,
+        output_path=written_path,
+        total_posts=len(raw_posts),
+    ):
+        print(f"Memory warning: {warning}", file=sys.stderr)
 
     print(f"Wrote digest to {written_path}")
     print(f"Selected {len(result.items)} of {len(raw_posts)} posts")

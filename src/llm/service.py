@@ -35,7 +35,7 @@ class LlmDigestEnhancer:
                 fallback_summary=topic_summaries.get(topic, "No topic summary available."),
             )
 
-        return PipelineResult(items=items, topic_summaries=topic_summaries)
+        return replace(result, items=items, topic_summaries=topic_summaries)
 
     def _enhance_item(self, item: DigestItem) -> DigestItem:
         fallback_reason = item.why_selected or "Selected by the deterministic ranking rules."

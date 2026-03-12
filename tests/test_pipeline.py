@@ -141,6 +141,7 @@ class PipelineTests(unittest.TestCase):
         self.assertGreater(result.items[0].score, 0)
         self.assertEqual(result.items[0].tags, ("fixtures", "pipeline", "tests"))
         self.assertIsNotNone(result.items[0].why_selected)
+        self.assertEqual(result.topic_memory, {})
         self.assertIn("software", result.topic_summaries)
 
 

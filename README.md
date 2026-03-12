@@ -20,10 +20,11 @@ The pipeline is modular and keeps deterministic behavior as the default:
 - `src/core/cluster.py` assigns heuristic topics with a simple keyword map.
 - `src/core/rank.py` applies explainable local scoring from topic strength, word count, URL presence, and priority authors.
 - `src/core/summarize.py` generates deterministic post summaries and fallback topic summaries.
+- `src/memory/` stores lightweight cross-run research memory in local JSON, including topic history, priority authors, and recent digest metadata.
 - `src/llm/config.py`, `src/llm/provider.py`, `src/llm/openai_compatible.py`, and `src/llm/service.py` add an optional provider-driven enhancement layer.
 - `prompts/templates/` stores the prompt templates used for topic summaries and improved `why_selected` explanations.
 - `src/core/pipeline.py` orchestrates the stage sequence and applies LLM enhancement only when configuration is complete.
-- `src/adapters/markdown_export.py` writes grouped markdown output by topic and score.
+- `src/adapters/markdown_export.py` writes grouped markdown output by topic and score, with simple memory-aware annotations.
 
 If no LLM credentials are configured, or if a provider request fails, the pipeline falls back to deterministic summaries and rationale text.
 
@@ -32,13 +33,13 @@ If no LLM credentials are configured, or if a provider request fails, the pipeli
 Generate a digest from the sample fixture:
 
 ```bash
-python3 -m src.cli --input data/sample_posts.json --output output/sample_digest.md
+python3 -m src.cli --input data/sample_posts.json --output output/sample_digest.md --memory-dir state/memory
 ```
 
 The source can also be selected explicitly:
 
 ```bash
-python3 -m src.cli --source json --input data/sample_posts.json --output output/sample_digest.md
+python3 -m src.cli --source json --input data/sample_posts.json --output output/sample_digest.md --memory-dir state/memory
 ```
 
 Available source names:
@@ -56,14 +57,28 @@ The markdown output includes:
 - selected versus total post counts
 - key topics
 - per-topic summaries
+- per-topic memory labels for new versus recurring topics
 - selected posts grouped by topic and sorted by score
-- per-post title/date, score, author, URL, `why_selected`, tags, and short summary
+- per-post title/date, score, author, URL, `why_selected`, tags, optional priority-author memory labels, and short summary
 
 Run tests:
 
 ```bash
 python3 -m unittest discover -s tests
 ```
+
+## Local Research Memory
+
+Phase 5 adds a lightweight JSON-backed memory layer. It stays local and deterministic:
+
+- default storage path is `state/memory/research_memory.json`
+- missing memory files are initialized automatically
+- invalid or unavailable memory falls back to an empty in-memory snapshot and still produces the digest
+- topic history tracks whether a topic is new or recurring across successful runs
+- priority authors are stored in the same JSON file and merged with the built-in defaults
+- recent digest metadata stores the latest digest date, source path, output path, counts, and selected topics
+
+On the first successful run a topic section is labeled `Memory: new topic`. On later runs with the same topic, the digest shows `Memory: recurring topic` with the prior digest count. Posts from tracked priority authors get a `- Memory: priority author` line.
 
 ## Optional LLM Mode
 
@@ -115,3 +130,4 @@ The deterministic local pipeline still handles ingestion, normalization, filteri
 - Ranking remains local and explainable rather than learned.
 - Only an OpenAI-compatible provider is implemented in Phase 3.
 - Non-JSON source adapters are placeholders in Phase 4 and intentionally do not perform real API or scraping work yet.
+- Research memory is still a single local JSON file; there is no database, concurrency control, or cross-machine sync yet.

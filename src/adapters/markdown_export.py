@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from pathlib import Path
 
-from src.models.digest import DigestItem, PipelineResult
+from src.models.digest import DigestItem, PipelineResult, TopicMemoryAnnotation
 
 
 def export_digest(
@@ -60,6 +60,9 @@ def export_digest(
                     "",
                 ]
             )
+            topic_memory = result.topic_memory.get(topic)
+            if topic_memory is not None:
+                lines.extend([f"Memory: {_format_topic_memory(topic_memory)}", ""])
             for index, item in enumerate(topic_items, start=1):
                 post = item.post
                 title = _resolve_post_title(post.title, post.text)
@@ -74,6 +77,11 @@ def export_digest(
                         f"- URL: {post.url or 'n/a'}",
                         f"- Why selected: {item.why_selected or 'n/a'}",
                         f"- Tags: {', '.join(item.tags) if item.tags else 'n/a'}",
+                        *(
+                            [f"- Memory: {', '.join(item.memory_labels)}"]
+                            if item.memory_labels
+                            else []
+                        ),
                         f"- Summary: {summary}",
                         "",
                     ]
@@ -104,3 +112,14 @@ def _resolve_post_title(title: str | None, text: str, *, max_words: int = 10) ->
         return text
 
     return " ".join(words[:max_words]).rstrip(".,;:!?") + "..."
+
+
+def _format_topic_memory(annotation: TopicMemoryAnnotation) -> str:
+    if annotation.prior_digest_count <= 0:
+        return annotation.label
+
+    suffix = "" if annotation.prior_digest_count == 1 else "s"
+    return (
+        f"{annotation.label} "
+        f"(seen in {annotation.prior_digest_count} prior digest{suffix})"
+    )

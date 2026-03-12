@@ -3,7 +3,7 @@
 Last updated: 2026-03-12
 
 ## Current Phase
-Phase 5 – Research Agent
+Phase 5 – Lightweight Research Memory
 
 ---
 
@@ -28,6 +28,25 @@ Result: SUCCESS
 ---
 
 ## Completed This Phase
+
+### Phase 5 – Lightweight Research Memory
+- added `src/memory/` with a JSON-backed local memory store and typed snapshot models
+- initialized missing memory files automatically and kept invalid memory files on a graceful fallback path
+- tracked topic history across successful runs and labeled topics as `new topic` or `recurring topic`
+- tracked priority authors through local memory and threaded them into ranking plus digest annotations
+- stored recent digest metadata with digest date, source path, output path, counts, and selected topics
+- updated the CLI to load memory before pipeline execution and persist memory only after the markdown export succeeds
+- updated markdown export to include simple memory-aware annotations without changing the overall digest structure
+- expanded tests to cover memory initialization, recurring topics, priority authors, and invalid-memory fallback
+
+Validation
+
+python3 -m src.cli --source json --input data/sample_posts.json --output output/sample_digest.md --memory-dir state/memory
+python3 -m unittest discover -s tests
+
+Result: SUCCESS
+
+---
 
 ### Phase 2A – Pipeline Refactor
 - split pipeline into `src/core/normalize.py`, `filter.py`, `cluster.py`, `rank.py`, `summarize.py`, and `pipeline.py`
@@ -68,10 +87,10 @@ Result: SUCCESS
 
 ## Remaining Work
 
-1 Phase 5 research-agent automation
+- define the next roadmap phase beyond lightweight local research memory
 
 ---
 
 ## Future Phases
 
-Phase 5 – research agent
+TBD
