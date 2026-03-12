@@ -72,11 +72,44 @@ class CliTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())
 
+    def test_cli_accepts_archive_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = Path(tmp_dir) / "archive_digest.md"
+            memory_dir = Path(tmp_dir) / "memory"
+            stdout = io.StringIO()
+
+            with patch.dict(os.environ, {}, clear=True):
+                with redirect_stdout(stdout):
+                    exit_code = main(
+                        [
+                            "--source",
+                            "archive",
+                            "--input",
+                            "data/sample_archive.json",
+                            "--output",
+                            str(output_path),
+                            "--memory-dir",
+                            str(memory_dir),
+                        ]
+                    )
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(output_path.exists())
+
+            content = output_path.read_text(encoding="utf-8")
+            self.assertIn("Source Path: `data/sample_archive.json`", content)
+            self.assertIn("Selected vs Total: 3 / 5", content)
+            self.assertIn("## ai", content)
+            self.assertIn("## software", content)
+            self.assertIn("@researchops", content)
+            self.assertIn("@signalboost", content)
+            self.assertIn("Wrote digest to", stdout.getvalue())
+
     def test_cli_reports_placeholder_source_errors(self) -> None:
         stderr = io.StringIO()
 
         with redirect_stderr(stderr):
-            exit_code = main(["--source", "archive"])
+            exit_code = main(["--source", "x_api"])
 
         self.assertEqual(exit_code, 2)
         self.assertIn("Source error:", stderr.getvalue())

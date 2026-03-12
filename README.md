@@ -14,7 +14,8 @@ The pipeline is modular and keeps deterministic behavior as the default:
 - `src/adapters/base.py` defines the source adapter contract and shared adapter errors.
 - `src/adapters/registry.py` resolves explicit source names to adapters.
 - `src/adapters/json_source.py` keeps local JSON as the working default source.
-- `src/adapters/archive_source.py`, `src/adapters/x_api_source.py`, and `src/adapters/scraping_source.py` are placeholders that fail clearly until implemented.
+- `src/adapters/archive_source.py` ingests realistic archive exports and maps alternate field names into the existing raw-post contract while preserving archive metadata.
+- `src/adapters/x_api_source.py` and `src/adapters/scraping_source.py` remain placeholders that fail clearly until implemented.
 - `src/core/normalize.py` converts loose JSON objects into normalized `Post` records.
 - `src/core/filter.py` removes short or duplicate posts.
 - `src/core/cluster.py` assigns heuristic topics with a simple keyword map.
@@ -42,10 +43,23 @@ The source can also be selected explicitly:
 python3 -m src.cli --source json --input data/sample_posts.json --output output/sample_digest.md --memory-dir state/memory
 ```
 
+Archive imports use the same pipeline and output format:
+
+```bash
+python3 -m src.cli --source archive --input data/sample_archive.json --output output/sample_archive_digest.md --memory-dir state/memory
+```
+
+The checked-in archive fixture demonstrates a realistic wrapped archive shape:
+
+- top-level `account.username` fallback for author data
+- `tweets` list containing nested `tweet` objects
+- alternate field names such as `tweet_id`, `screen_name`, and `full_text`
+- preserved archive metadata such as `reply_to`, `quoted_post_id`, `thread_id`, `conversation_id`, `metrics`, and extra archive-only fields
+
 Available source names:
 
 - `json` for the current local JSON workflow
-- `archive` placeholder for imported archive ingestion
+- `archive` for imported archive JSON with realistic alternate field names
 - `x_api` placeholder for future API ingestion
 - `scraping` placeholder for future browser-assisted ingestion
 
@@ -129,5 +143,5 @@ The deterministic local pipeline still handles ingestion, normalization, filteri
 - Topic clustering is still keyword-based and intentionally simple.
 - Ranking remains local and explainable rather than learned.
 - Only an OpenAI-compatible provider is implemented in Phase 3.
-- Non-JSON source adapters are placeholders in Phase 4 and intentionally do not perform real API or scraping work yet.
+- The archive adapter currently targets local JSON exports only; real API and scraping adapters are still placeholders.
 - Research memory is still a single local JSON file; there is no database, concurrency control, or cross-machine sync yet.

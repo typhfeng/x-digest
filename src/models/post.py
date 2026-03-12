@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
 class Post:
-    """Normalized post model used by the local MVP pipeline."""
+    """Normalized post model used by the research pipeline."""
 
     id: str
     author: str
@@ -11,3 +12,4 @@ class Post:
     title: str | None = None
     url: str | None = None
     created_at: str | None = None
+    metadata: dict[str, Any] | None = None

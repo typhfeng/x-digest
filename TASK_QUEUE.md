@@ -7,9 +7,10 @@
 - [x] Phase 3: LLM-assisted summaries and richer rationale generation
 - [x] Phase 4: additional source adapters beyond local JSON
 - [x] Phase 5: lightweight research memory
+- [x] Phase 6A: realistic archive import source
 - [x] Update tests
 - [x] Update README
 - [x] Update PROJECT_STATE.md and ROADMAP.md after completion
 
 ## Next Up
-- [ ] Define the next post-Phase-5 roadmap item
+- [ ] Define the next post-Phase-6A roadmap item

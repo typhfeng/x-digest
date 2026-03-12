@@ -19,6 +19,7 @@ def normalize_posts(raw_posts: list[dict[str, Any]]) -> list[Post]:
         title = _normalize_optional(raw_post.get("title"))
         url = _normalize_optional(raw_post.get("url"))
         created_at = _normalize_optional(raw_post.get("created_at"))
+        metadata = _normalize_metadata(raw_post.get("metadata"), index, post_id)
 
         if not post_id:
             raise ValueError(f"Post at index {index} is missing an id")
@@ -35,6 +36,7 @@ def normalize_posts(raw_posts: list[dict[str, Any]]) -> list[Post]:
                 title=title,
                 url=url,
                 created_at=created_at,
+                metadata=metadata,
             )
         )
 
@@ -51,3 +53,16 @@ def _normalize_optional(value: Any) -> str | None:
 
     normalized = _collapse_whitespace(str(value))
     return normalized or None
+
+
+def _normalize_metadata(
+    value: Any,
+    index: int,
+    post_id: str,
+) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        identifier = post_id or f"at index {index}"
+        raise ValueError(f"Post {identifier} metadata must be an object")
+    return dict(value)

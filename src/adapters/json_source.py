@@ -7,6 +7,7 @@ from src.adapters.base import (
     RawPost,
     SourceAdapter,
     SourceConfigurationError,
+    SourceDataError,
     SourceLoadResult,
     SourceRequest,
 )
@@ -25,11 +26,20 @@ class JsonSourceAdapter(SourceAdapter):
             )
 
         input_path = Path(request.input_path)
-        with input_path.open("r", encoding="utf-8") as handle:
-            payload = json.load(handle)
+        try:
+            with input_path.open("r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+        except FileNotFoundError as exc:
+            raise SourceConfigurationError(
+                f"Source 'json' could not find input file: {input_path}"
+            ) from exc
+        except json.JSONDecodeError as exc:
+            raise SourceDataError(
+                f"Source 'json' could not parse JSON from {input_path}: {exc.msg}"
+            ) from exc
 
         if not isinstance(payload, list):
-            raise ValueError(f"Expected a list of posts in {input_path}")
+            raise SourceDataError(f"Expected a list of posts in {input_path}")
 
         return SourceLoadResult(
             posts=payload,

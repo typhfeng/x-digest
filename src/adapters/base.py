@@ -16,6 +16,10 @@ class SourceConfigurationError(SourceAdapterError):
     """Raised when a selected source is missing required configuration."""
 
 
+class SourceDataError(SourceAdapterError):
+    """Raised when a source payload cannot be parsed into raw posts."""
+
+
 class SourceNotImplementedError(SourceAdapterError):
     """Raised when a placeholder adapter is selected before implementation."""
 

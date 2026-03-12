@@ -1,5 +1,8 @@
 import unittest
+from pathlib import Path
 
+from src.adapters.base import SourceRequest
+from src.adapters.registry import get_source_adapter
 from src.core.pipeline import (
     LlmSettings,
     assign_topic,
@@ -142,6 +145,27 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result.items[0].tags, ("fixtures", "pipeline", "tests"))
         self.assertIsNotNone(result.items[0].why_selected)
         self.assertEqual(result.topic_memory, {})
+        self.assertIn("software", result.topic_summaries)
+
+    def test_run_pipeline_accepts_archive_sourced_posts(self) -> None:
+        raw_posts = get_source_adapter("archive").load(
+            SourceRequest(input_path=Path("data/sample_archive.json"))
+        ).posts
+
+        result = run_pipeline(
+            raw_posts,
+            llm_settings=LlmSettings(enabled=False),
+        )
+
+        self.assertEqual(len(result.items), 3)
+        self.assertEqual({item.post.id for item in result.items}, {"9001", "9003", "9005"})
+        first_archive_post = next(item.post for item in result.items if item.post.id == "9001")
+        self.assertEqual(first_archive_post.author, "researchops")
+        self.assertEqual(
+            first_archive_post.created_at,
+            "2026-03-11T09:15:00+00:00",
+        )
+        self.assertEqual(first_archive_post.metadata["conversation_id"], "9001")
         self.assertIn("software", result.topic_summaries)
 
 

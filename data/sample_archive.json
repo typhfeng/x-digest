@@ -1,0 +1,75 @@
+{
+  "account": {
+    "username": "researchops",
+    "display_name": "Research Ops"
+  },
+  "tweets": [
+    {
+      "tweet": {
+        "id": "9001",
+        "full_text": "Open-source evaluation runs are getting faster because teams now cache embeddings and reuse deterministic fixtures across benchmark updates.",
+        "created_at": "Wed Mar 11 09:15:00 +0000 2026",
+        "conversation_id": "9001",
+        "thread_id": "9001",
+        "metrics": {
+          "likes": 14,
+          "replies": 2
+        }
+      }
+    },
+    {
+      "tweet": {
+        "tweet_id": "9002",
+        "screen_name": "shipit",
+        "text": "gm",
+        "created_at": "2026-03-11T10:00:00Z",
+        "reply_to": "9001",
+        "metrics": {
+          "likes": 1
+        }
+      }
+    },
+    {
+      "tweet": {
+        "tweet_id": "9003",
+        "username": "infrawatch",
+        "full_text": "Several inference teams reported lower serving costs after moving long-context summarization jobs onto batched overnight queues instead of interactive workers.",
+        "created_at": "2026-03-10T18:45:00+00:00",
+        "url": "https://x.com/infrawatch/status/9003",
+        "conversation_id": "9003",
+        "metrics": {
+          "likes": 30,
+          "reposts": 4
+        }
+      }
+    },
+    {
+      "tweet": {
+        "tweet_id": "9004",
+        "username": "researchops",
+        "full_text": "Open-source evaluation runs are getting faster because teams now cache embeddings and reuse deterministic fixtures across benchmark updates.",
+        "created_at": "Wed Mar 11 11:05:00 +0000 2026",
+        "quoted_post_id": "8999",
+        "metrics": {
+          "likes": 8
+        }
+      }
+    },
+    {
+      "tweet": {
+        "id": "9005",
+        "author": "signalboost",
+        "text": "A good digest pipeline separates adapters from scoring logic so local replay tests can validate filtering changes without touching external APIs.",
+        "created_at": "2026-03-09",
+        "url": "https://x.com/signalboost/status/9005",
+        "conversation_id": "9005",
+        "metrics": {
+          "likes": 11,
+          "bookmarks": 3
+        },
+        "client": "web"
+      },
+      "archived_at": "2026-03-09T00:10:00Z"
+    }
+  ]
+}

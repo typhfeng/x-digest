@@ -3,11 +3,29 @@
 Last updated: 2026-03-12
 
 ## Current Phase
-Phase 5 – Lightweight Research Memory
+Phase 6A – Realistic Archive Import Source
 
 ---
 
 ## Completed
+
+### Phase 6A – Realistic Archive Import Source
+- replaced the `archive` placeholder with a working local archive adapter in `src/adapters/archive_source.py`
+- supported realistic archive containers such as top-level `tweets` lists with nested `tweet` objects
+- normalized alternate archive field names including `tweet_id`, `screen_name`, and `full_text` into the existing raw-post contract
+- preserved richer archive fields such as `reply_to`, `quoted_post_id`, `thread_id`, `conversation_id`, `metrics`, wrapper metadata, and extra archive-only fields under `Post.metadata`
+- normalized common archive timestamp formats into ISO-style strings while preserving the original timestamp in metadata when transformed
+- kept `src/adapters/json_source.py` as the simple baseline adapter and left ranking, memory, export, and optional LLM summarization unchanged
+- added `data/sample_archive.json` plus deterministic tests for archive adapter success and failure, CLI archive mode, and pipeline execution with archive-sourced posts
+
+Validation
+
+python3 -m src.cli --source archive --input data/sample_archive.json --output output/sample_archive_digest.md --memory-dir state/memory  
+python3 -m unittest discover -s tests
+
+Result: SUCCESS
+
+---
 
 ### Phase 1 – Local MVP
 - CLI interface implemented
@@ -87,10 +105,10 @@ Result: SUCCESS
 
 ## Remaining Work
 
-- define the next roadmap phase beyond lightweight local research memory
+- define the next roadmap phase beyond realistic local archive import
 
 ---
 
 ## Future Phases
 
-TBD
+- Phase 6B and beyond: TBD

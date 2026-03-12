@@ -94,3 +94,18 @@ Features:
 - recurring digest workflow
 
 Status: COMPLETE
+
+---
+
+## Phase 6A – Realistic Archive Import Source
+Goal:
+Turn archive ingestion into a real local adapter without changing the core research pipeline.
+
+Features:
+- working `archive` CLI source
+- realistic archive JSON support with wrapped records and alternate field names
+- preserved archive metadata on normalized posts
+- local sample archive fixture
+- adapter, CLI, and pipeline coverage for archive input
+
+Status: COMPLETE
