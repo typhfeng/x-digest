@@ -1,6 +1,7 @@
 import unittest
 
 from src.core.pipeline import (
+    LlmSettings,
     assign_topic,
     cluster_posts,
     filter_posts,
@@ -127,7 +128,8 @@ class PipelineTests(unittest.TestCase):
                     "author": "alpha",
                     "text": "Deterministic local fixtures make pipeline tests cheaper to run and easier to debug.",
                 }
-            ]
+            ],
+            llm_settings=LlmSettings(enabled=False),
         )
 
         self.assertEqual(len(result.items), 1)

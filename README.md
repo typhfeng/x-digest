@@ -1,26 +1,28 @@
 # x-digest
 
-AI-agent based research digest generator for X-like content.
+Research-oriented digest generator for X-like social content.
 
 Pipeline:
 ingest → normalize → filter → cluster → rank → summarize → export
 
-This repository is structured for agent-driven development (Codex CLI, GPT, etc.).
+The local JSON workflow remains the reference path. Optional LLM enhancement is available for topic summaries and `why_selected` text, but the app still runs without any API key.
 
 ## Architecture
 
-The current local research pipeline is deterministic and modular:
+The pipeline is modular and keeps deterministic behavior as the default:
 
 - `src/adapters/json_source.py` loads local JSON fixtures.
 - `src/core/normalize.py` converts loose JSON objects into normalized `Post` records.
 - `src/core/filter.py` removes short or duplicate posts.
 - `src/core/cluster.py` assigns heuristic topics with a simple keyword map.
 - `src/core/rank.py` applies explainable local scoring from topic strength, word count, URL presence, and priority authors.
-- `src/core/summarize.py` generates deterministic one-line summaries and topic summaries.
-- `src/core/pipeline.py` orchestrates the stage sequence and returns a `PipelineResult`.
+- `src/core/summarize.py` generates deterministic post summaries and fallback topic summaries.
+- `src/llm/config.py`, `src/llm/provider.py`, `src/llm/openai_compatible.py`, and `src/llm/service.py` add an optional provider-driven enhancement layer.
+- `prompts/templates/` stores the prompt templates used for topic summaries and improved `why_selected` explanations.
+- `src/core/pipeline.py` orchestrates the stage sequence and applies LLM enhancement only when configuration is complete.
 - `src/adapters/markdown_export.py` writes grouped markdown output by topic and score.
 
-No external APIs or LLM calls are used yet. The local JSON workflow remains the reference path for testing and iteration.
+If no LLM credentials are configured, or if a provider request fails, the pipeline falls back to deterministic summaries and rationale text.
 
 ## Run Locally
 
@@ -30,14 +32,14 @@ Generate a digest from the sample fixture:
 python3 -m src.cli --input data/sample_posts.json --output output/sample_digest.md
 ```
 
-The output markdown includes:
+The markdown output includes:
 
 - digest date and source path
 - selected versus total post counts
 - key topics
 - per-topic summaries
 - selected posts grouped by topic and sorted by score
-- per-post title/date, score, author, URL, why-selected metadata, tags, and short summary
+- per-post title/date, score, author, URL, `why_selected`, tags, and short summary
 
 Run tests:
 
@@ -45,8 +47,52 @@ Run tests:
 python3 -m unittest discover -s tests
 ```
 
-## Next Gaps Before LLM Integration
+## Optional LLM Mode
 
-- Topic clustering is still a keyword heuristic and will miss nuanced themes.
-- Ranking is intentionally local and explainable, not learned.
-- Topic summaries are template-based rather than abstractive.
+Configuration can come from environment variables, plus an optional JSON config file referenced by `X_DIGEST_CONFIG`.
+
+Supported environment variables:
+
+- `X_DIGEST_LLM_ENABLED=true`
+- `X_DIGEST_LLM_PROVIDER=openai_compatible`
+- `X_DIGEST_LLM_MODEL=gpt-4.1-mini`
+- `X_DIGEST_LLM_BASE_URL=https://api.openai.com/v1`
+- `X_DIGEST_LLM_TIMEOUT=20`
+- `X_DIGEST_LLM_API_KEY=...`
+
+`OPENAI_API_KEY` is also accepted as the API key source.
+
+Optional config file example:
+
+```json
+{
+  "llm": {
+    "enabled": true,
+    "provider": "openai_compatible",
+    "model": "gpt-4.1-mini",
+    "base_url": "https://api.openai.com/v1",
+    "timeout_seconds": 20
+  }
+}
+```
+
+Usage example:
+
+```bash
+export X_DIGEST_CONFIG=config/llm.json
+export OPENAI_API_KEY=your_api_key_here
+python3 -m src.cli --input data/sample_posts.json --output output/sample_digest.md
+```
+
+When enabled and configured, the provider is used to:
+
+- generate a concise per-topic summary
+- improve per-post `why_selected` text
+
+The deterministic local pipeline still handles ingestion, normalization, filtering, clustering, ranking, and post summaries. If provider setup is incomplete or a request fails, the digest is still produced in fallback mode.
+
+## Current Limits
+
+- Topic clustering is still keyword-based and intentionally simple.
+- Ranking remains local and explainable rather than learned.
+- Only an OpenAI-compatible provider is implemented in Phase 3.

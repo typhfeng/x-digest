@@ -1,0 +1,8 @@
+Rewrite the why-selected explanation for this post.
+Keep it under 24 words and explain why the post matters for research review.
+
+Topic: {topic}
+Score: {score}
+Tags: {tags}
+Fallback rationale: {fallback_reason}
+Post text: {post_text}

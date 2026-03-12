@@ -10,6 +10,9 @@ from src.core.filter import count_words, filter_posts
 from src.core.normalize import normalize_posts
 from src.core.rank import DEFAULT_PRIORITY_AUTHORS, rank_posts, score_post
 from src.core.summarize import summarize_posts, summarize_topics
+from src.llm.config import LlmSettings, load_llm_settings
+from src.llm.provider import LlmProvider, build_provider
+from src.llm.service import LlmDigestEnhancer
 from src.models.digest import ClusteredPost, DigestItem, PipelineResult, RankedPost
 from src.models.post import Post
 
@@ -21,6 +24,8 @@ def run_pipeline(
     keyword_map: Mapping[str, Sequence[str]] | None = None,
     priority_authors: Iterable[str] | None = None,
     max_summary_words: int = 18,
+    llm_settings: LlmSettings | None = None,
+    llm_provider: LlmProvider | None = None,
 ) -> PipelineResult:
     """Run normalize -> filter -> cluster -> rank -> summarize for local JSON input."""
     normalized = normalize_posts(raw_posts)
@@ -28,10 +33,16 @@ def run_pipeline(
     clustered = cluster_posts(filtered, keyword_map=keyword_map)
     ranked = rank_posts(clustered, priority_authors=priority_authors)
     items = summarize_posts(ranked, max_words=max_summary_words)
-    return PipelineResult(
+    result = PipelineResult(
         items=tuple(items),
         topic_summaries=summarize_topics(items),
     )
+    settings = llm_settings or load_llm_settings()
+    provider = llm_provider or build_provider(settings)
+    if provider is None:
+        return result
+
+    return LlmDigestEnhancer(provider).enhance(result)
 
 
 __all__ = [
@@ -39,13 +50,16 @@ __all__ = [
     "DEFAULT_PRIORITY_AUTHORS",
     "DEFAULT_TOPIC_KEYWORDS",
     "DigestItem",
+    "LlmSettings",
     "PipelineResult",
     "Post",
     "RankedPost",
     "assign_topic",
+    "build_provider",
     "cluster_posts",
     "count_words",
     "filter_posts",
+    "load_llm_settings",
     "normalize_posts",
     "rank_posts",
     "run_pipeline",

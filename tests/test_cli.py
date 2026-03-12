@@ -1,8 +1,10 @@
 import io
+import os
 import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 from src.cli import main
 
@@ -13,15 +15,16 @@ class CliTests(unittest.TestCase):
             output_path = Path(tmp_dir) / "digest.md"
             stdout = io.StringIO()
 
-            with redirect_stdout(stdout):
-                exit_code = main(
-                    [
-                        "--input",
-                        "data/sample_posts.json",
-                        "--output",
-                        str(output_path),
-                    ]
-                )
+            with patch.dict(os.environ, {}, clear=True):
+                with redirect_stdout(stdout):
+                    exit_code = main(
+                        [
+                            "--input",
+                            "data/sample_posts.json",
+                            "--output",
+                            str(output_path),
+                        ]
+                    )
 
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())

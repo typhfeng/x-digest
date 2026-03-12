@@ -1,0 +1,5 @@
+Summarize the shared signal across these selected posts for the topic "{topic}".
+Keep it under 35 words and prioritize substantive developments over generic commentary.
+
+Selected posts:
+{posts}

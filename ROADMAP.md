@@ -35,7 +35,7 @@ Features:
 - structured digest items
 - improved markdown export
 
-Status: NOT STARTED
+Status: COMPLETE
 
 ---
 
@@ -49,7 +49,7 @@ Features:
 - topic-grouped markdown output
 - per-post why_selected
 
-Status: NOT STARTED
+Status: COMPLETE
 
 ---
 
@@ -64,7 +64,7 @@ Features:
 - why selected explanations
 - concise signal extraction
 
-Status: NOT STARTED
+Status: COMPLETE
 
 ---
 
