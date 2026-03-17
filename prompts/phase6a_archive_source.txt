@@ -1,0 +1,79 @@
+Read AGENTS.md first.
+Then read ROADMAP.md, PROJECT_STATE.md, and TASK_QUEUE.md.
+
+Complete Phase 6A for x-digest: realistic archive import source.
+
+Goals:
+- turn archive_source into a real working adapter
+- support more realistic social-post archive JSON input
+- preserve the current local JSON workflow
+- keep the core research pipeline unchanged
+
+Requirements:
+- keep dependencies minimal
+- use type hints
+- keep the project runnable throughout
+- do not implement real X API calls yet
+- do not implement brittle scraping yet
+
+Architecture requirements:
+- implement src/adapters/archive_source.py as a real adapter
+- preserve src/adapters/json_source.py as the simple baseline adapter
+- keep adapter selection via the existing source architecture
+- normalize archive records into the current Post schema and preserve extra metadata where practical
+
+Archive input support:
+- support at least one realistic archive shape where records may include fields such as:
+  - id or tweet_id
+  - author or username or screen_name
+  - text or full_text
+  - created_at
+  - url optional
+  - reply_to optional
+  - quoted_post_id optional
+  - thread_id optional
+  - conversation_id optional
+  - metrics optional
+- handle missing optional fields gracefully
+- fail clearly on invalid archive structure
+
+Behavior requirements:
+- archive source should work from CLI with:
+  - python3 -m src.cli --source archive --input <archive_file> --output <digest_file>
+- if archive fields are richer than the current digest needs, preserve them in normalized metadata where reasonable
+- do not break ranking, memory, or optional LLM summarization
+
+Data model guidance:
+- extend Post only if clearly needed
+- prefer backward-compatible model evolution
+- avoid overcomplicating the schema
+
+Tests:
+- add/update tests for:
+  - archive adapter valid input
+  - archive adapter invalid input
+  - normalization of alternate field names
+  - CLI archive mode
+  - pipeline still works with archive-sourced posts
+
+Documentation and state tracking:
+- add a realistic sample archive file under data/
+- update README with archive source usage
+- update ROADMAP.md
+- update PROJECT_STATE.md
+- update TASK_QUEUE.md
+
+Git requirements:
+- commit changes
+- create an annotated tag for this phase
+- do not push automatically
+- report the exact git push commands for the user
+
+Suggested git metadata:
+- commit message: Phase6A: add realistic archive import source
+- tag: v0.7-phase6a
+
+Validation:
+- run the CLI using the archive source and a sample archive file
+- run the tests
+- fix failures before finishing
