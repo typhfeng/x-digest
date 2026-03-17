@@ -1,13 +1,30 @@
 # x-digest Project State
 
-Last updated: 2026-03-12
+Last updated: 2026-03-17
 
 ## Current Phase
-Phase 6A – Realistic Archive Import Source
+Phase 6B – Deterministic Time-Window Filtering
 
 ---
 
 ## Completed
+
+### Phase 6B – Deterministic Time-Window Filtering
+- added inclusive `--since` and `--until` CLI options for ISO-8601 boundaries in `src/cli.py`
+- extended `src/core/pipeline.py` to thread optional time-window controls into filtering without changing the ingest/cluster/rank/summarize flow
+- updated `src/core/filter.py` to apply deterministic time filtering after normalization, with support for date-only boundaries and explicit validation errors for invalid windows
+- kept backward compatibility when no time window is provided
+- added deterministic tests for date-window filtering and invalid range handling in pipeline and CLI suites
+- updated `README.md` and `ROADMAP.md` to document the new phase and usage
+
+Validation
+
+python3 -m src.cli --source archive --input data/sample_archive.json --output output/sample_archive_window_digest.md --memory-dir state/memory --since 2026-03-10 --until 2026-03-11  
+python3 -m unittest discover -s tests
+
+Result: SUCCESS
+
+---
 
 ### Phase 6A – Realistic Archive Import Source
 - replaced the `archive` placeholder with a working local archive adapter in `src/adapters/archive_source.py`
@@ -105,10 +122,10 @@ Result: SUCCESS
 
 ## Remaining Work
 
-- define the next roadmap phase beyond realistic local archive import
+- define and prioritize Phase 7 (first non-placeholder external source adapter)
 
 ---
 
 ## Future Phases
 
-- Phase 6B and beyond: TBD
+- Phase 7 and beyond: TBD

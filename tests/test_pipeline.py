@@ -58,6 +58,54 @@ class PipelineTests(unittest.TestCase):
 
         self.assertEqual([post.id for post in filtered], ["2"])
 
+    def test_filter_posts_applies_date_window(self) -> None:
+        normalized = normalize_posts(
+            [
+                {
+                    "id": "1",
+                    "author": "alpha",
+                    "text": "Alpha post has enough words to pass the filter with room to spare.",
+                    "created_at": "2026-03-08",
+                },
+                {
+                    "id": "2",
+                    "author": "beta",
+                    "text": "Beta post has enough words to pass the filter with room to spare.",
+                    "created_at": "2026-03-09",
+                },
+                {
+                    "id": "3",
+                    "author": "gamma",
+                    "text": "Gamma post has enough words to pass the filter with room to spare.",
+                    "created_at": "2026-03-10",
+                },
+            ]
+        )
+
+        filtered = filter_posts(
+            normalized,
+            min_words=6,
+            since="2026-03-09",
+            until="2026-03-10",
+        )
+
+        self.assertEqual([post.id for post in filtered], ["2", "3"])
+
+    def test_filter_posts_rejects_invalid_date_window(self) -> None:
+        normalized = normalize_posts(
+            [
+                {
+                    "id": "1",
+                    "author": "alpha",
+                    "text": "This post has enough words to pass the filter with room to spare.",
+                    "created_at": "2026-03-10",
+                }
+            ]
+        )
+
+        with self.assertRaises(ValueError):
+            filter_posts(normalized, min_words=6, since="2026-03-11", until="2026-03-10")
+
     def test_assign_topic_uses_keyword_map_and_falls_back_to_general(self) -> None:
         ai_topic, ai_tags, ai_strength = assign_topic(
             "Evaluation teams improved inference latency with better embeddings."
@@ -167,6 +215,35 @@ class PipelineTests(unittest.TestCase):
         )
         self.assertEqual(first_archive_post.metadata["conversation_id"], "9001")
         self.assertIn("software", result.topic_summaries)
+
+    def test_run_pipeline_applies_time_window(self) -> None:
+        result = run_pipeline(
+            [
+                {
+                    "id": "1",
+                    "author": "researchops",
+                    "text": "Open-source evaluation runs are getting faster because teams now cache embeddings and reuse deterministic fixtures across benchmark updates.",
+                    "created_at": "2026-03-10",
+                },
+                {
+                    "id": "3",
+                    "author": "infrawatch",
+                    "text": "Several inference teams reported lower serving costs after moving long-context summarization jobs onto batched overnight queues instead of interactive workers.",
+                    "created_at": "2026-03-09",
+                },
+                {
+                    "id": "5",
+                    "author": "signalboost",
+                    "text": "A good digest pipeline separates adapters from scoring logic so local replay tests can validate filtering changes without touching external APIs.",
+                    "created_at": "2026-03-08",
+                },
+            ],
+            since="2026-03-09",
+            until="2026-03-10",
+            llm_settings=LlmSettings(enabled=False),
+        )
+
+        self.assertEqual({item.post.id for item in result.items}, {"1", "3"})
 
 
 if __name__ == "__main__":

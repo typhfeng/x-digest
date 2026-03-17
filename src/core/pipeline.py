@@ -29,6 +29,8 @@ def run_pipeline(
     raw_posts: list[dict[str, Any]],
     *,
     min_words: int = 6,
+    since: str | None = None,
+    until: str | None = None,
     keyword_map: Mapping[str, Sequence[str]] | None = None,
     priority_authors: Iterable[str] | None = None,
     max_summary_words: int = 18,
@@ -38,7 +40,7 @@ def run_pipeline(
 ) -> PipelineResult:
     """Run normalize -> filter -> cluster -> rank -> summarize for local JSON input."""
     normalized = normalize_posts(raw_posts)
-    filtered = filter_posts(normalized, min_words=min_words)
+    filtered = filter_posts(normalized, min_words=min_words, since=since, until=until)
     clustered = cluster_posts(filtered, keyword_map=keyword_map)
     ranked = rank_posts(clustered, priority_authors=priority_authors)
     items = summarize_posts(ranked, max_words=max_summary_words)

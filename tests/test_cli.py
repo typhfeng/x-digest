@@ -105,6 +105,55 @@ class CliTests(unittest.TestCase):
             self.assertIn("@signalboost", content)
             self.assertIn("Wrote digest to", stdout.getvalue())
 
+    def test_cli_applies_time_window(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = Path(tmp_dir) / "digest.md"
+            memory_dir = Path(tmp_dir) / "memory"
+
+            with patch.dict(os.environ, {}, clear=True):
+                exit_code = main(
+                    [
+                        "--source",
+                        "json",
+                        "--input",
+                        "data/sample_posts.json",
+                        "--output",
+                        str(output_path),
+                        "--memory-dir",
+                        str(memory_dir),
+                        "--since",
+                        "2026-03-10",
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            content = output_path.read_text(encoding="utf-8")
+            self.assertIn("Selected vs Total: 1 / 5", content)
+            self.assertIn("@researchops", content)
+            self.assertNotIn("@infrawatch", content)
+            self.assertNotIn("@signalboost", content)
+
+    def test_cli_reports_invalid_time_window(self) -> None:
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr):
+            exit_code = main(
+                [
+                    "--source",
+                    "json",
+                    "--input",
+                    "data/sample_posts.json",
+                    "--since",
+                    "2026-03-11",
+                    "--until",
+                    "2026-03-10",
+                ]
+            )
+
+        self.assertEqual(exit_code, 2)
+        self.assertIn("Pipeline error:", stderr.getvalue())
+        self.assertIn("--since must be earlier than or equal to --until", stderr.getvalue())
+
     def test_cli_reports_placeholder_source_errors(self) -> None:
         stderr = io.StringIO()
 

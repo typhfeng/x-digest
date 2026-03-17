@@ -8,9 +8,10 @@
 - [x] Phase 4: additional source adapters beyond local JSON
 - [x] Phase 5: lightweight research memory
 - [x] Phase 6A: realistic archive import source
+- [x] Phase 6B: deterministic time-window filtering (`--since` / `--until`)
 - [x] Update tests
 - [x] Update README
 - [x] Update PROJECT_STATE.md and ROADMAP.md after completion
 
 ## Next Up
-- [ ] Define the next post-Phase-6A roadmap item
+- [ ] Define and prioritize Phase 7 external source adapter work (x_api vs scraping first)

@@ -41,6 +41,16 @@ def build_parser() -> argparse.ArgumentParser:
         default="state/memory",
         help="Directory for local JSON research memory. Defaults to state/memory.",
     )
+    parser.add_argument(
+        "--since",
+        default=None,
+        help="Inclusive lower time boundary in ISO-8601 (for example: 2026-03-10).",
+    )
+    parser.add_argument(
+        "--until",
+        default=None,
+        help="Inclusive upper time boundary in ISO-8601 (for example: 2026-03-10).",
+    )
     return parser
 
 
@@ -64,12 +74,18 @@ def main(argv: list[str] | None = None) -> int:
     for warning in memory_snapshot.warnings:
         print(f"Memory warning: {warning}", file=sys.stderr)
 
-    result = run_pipeline(
-        raw_posts,
-        min_words=args.min_words,
-        priority_authors=memory_snapshot.priority_authors,
-        memory_snapshot=memory_snapshot,
-    )
+    try:
+        result = run_pipeline(
+            raw_posts,
+            min_words=args.min_words,
+            since=args.since,
+            until=args.until,
+            priority_authors=memory_snapshot.priority_authors,
+            memory_snapshot=memory_snapshot,
+        )
+    except ValueError as exc:
+        print(f"Pipeline error: {exc}", file=sys.stderr)
+        return 2
     written_path = export_digest(
         result,
         output_path,

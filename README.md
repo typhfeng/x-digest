@@ -17,7 +17,7 @@ The pipeline is modular and keeps deterministic behavior as the default:
 - `src/adapters/archive_source.py` ingests realistic archive exports and maps alternate field names into the existing raw-post contract while preserving archive metadata.
 - `src/adapters/x_api_source.py` and `src/adapters/scraping_source.py` remain placeholders that fail clearly until implemented.
 - `src/core/normalize.py` converts loose JSON objects into normalized `Post` records.
-- `src/core/filter.py` removes short or duplicate posts.
+- `src/core/filter.py` removes short or duplicate posts and optionally applies deterministic ISO time-window filtering.
 - `src/core/cluster.py` assigns heuristic topics with a simple keyword map.
 - `src/core/rank.py` applies explainable local scoring from topic strength, word count, URL presence, and priority authors.
 - `src/core/summarize.py` generates deterministic post summaries and fallback topic summaries.
@@ -48,6 +48,15 @@ Archive imports use the same pipeline and output format:
 ```bash
 python3 -m src.cli --source archive --input data/sample_archive.json --output output/sample_archive_digest.md --memory-dir state/memory
 ```
+
+Time-window filtering is optional and works across supported sources:
+
+```bash
+python3 -m src.cli --source archive --input data/sample_archive.json --output output/sample_archive_digest.md --since 2026-03-10 --until 2026-03-11
+```
+
+`--since` and `--until` are inclusive ISO-8601 boundaries (`YYYY-MM-DD` or full datetime).
+When a time window is provided, posts with missing or non-ISO `created_at` values are excluded.
 
 The checked-in archive fixture demonstrates a realistic wrapped archive shape:
 

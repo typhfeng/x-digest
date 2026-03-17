@@ -109,3 +109,18 @@ Features:
 - adapter, CLI, and pipeline coverage for archive input
 
 Status: COMPLETE
+
+---
+
+## Phase 6B – Deterministic Time-Window Filtering
+Goal:
+Support repeatable research slices by selecting posts within an explicit ISO time window.
+
+Features:
+- CLI flags `--since` and `--until` for inclusive ISO boundaries
+- pipeline-level date filtering across all supported sources
+- deterministic handling for date-only and datetime boundaries
+- clear validation errors for invalid windows
+- test and README coverage
+
+Status: COMPLETE
