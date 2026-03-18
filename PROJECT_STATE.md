@@ -1,13 +1,31 @@
 # x-digest Project State
 
-Last updated: 2026-03-17
+Last updated: 2026-03-18
 
 ## Current Phase
-Phase 6B – Deterministic Time-Window Filtering
+Phase 7A – Real X API Adapter
 
 ---
 
 ## Completed
+
+### Phase 7A – Real X API Adapter
+- replaced `src/adapters/x_api_source.py` placeholder with a working X API adapter that loads request settings from local JSON
+- added support for `recent_search` and `user_tweets` request modes, including deterministic pagination controls (`max_pages`) and duplicate suppression by post id
+- mapped X API responses into the existing raw-post contract (`id`, `author`, `text`, optional `created_at`, `url`, and metadata)
+- added bearer-token authentication via `X_DIGEST_X_API_BEARER_TOKEN` and configurable base URL/timeout via config or environment variables
+- added a checked-in request fixture `data/sample_x_api_request.json` for repeatable local workflows
+- expanded adapter and CLI tests to cover X API config validation, pagination behavior, response mapping, and end-to-end digest generation with mocked HTTP responses
+- updated `README.md`, `ROADMAP.md`, and `TASK_QUEUE.md` to document Phase 7A usage and next steps
+
+Validation
+
+python3 -m src.cli --source x_api --input data/sample_x_api_request.json --output output/sample_x_api_digest.md --memory-dir state/memory  
+python3 -m unittest discover -s tests
+
+Result: SUCCESS
+
+---
 
 ### Phase 6B – Deterministic Time-Window Filtering
 - added inclusive `--since` and `--until` CLI options for ISO-8601 boundaries in `src/cli.py`
@@ -122,7 +140,8 @@ Result: SUCCESS
 
 ## Remaining Work
 
-- define and prioritize Phase 7 (first non-placeholder external source adapter)
+- Phase 7B: add a deterministic browser-assisted scraping fallback adapter
+- harden operational X API workflows (request presets, retry policy tuning, and schedule automation)
 
 ---
 

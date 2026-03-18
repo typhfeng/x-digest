@@ -124,3 +124,32 @@ Features:
 - test and README coverage
 
 Status: COMPLETE
+
+---
+
+## Phase 7A – Real X API Adapter
+Goal:
+Turn `x_api` into a working external ingest source while preserving deterministic local pipeline behavior.
+
+Features:
+- working `x_api` CLI source backed by real HTTP requests
+- local JSON request config for `recent_search` and `user_tweets`
+- bearer-token authentication via environment variable
+- deterministic pagination and duplicate suppression by post id
+- raw-post mapping with metadata preservation for API fields
+- adapter and CLI tests using mocked HTTP payloads
+
+Status: COMPLETE
+
+---
+
+## Phase 7B – Scraping Fallback Adapter
+Goal:
+Add a browser-assisted fallback source only after the API path is stable.
+
+Features:
+- explicit scraping contract and failure boundaries
+- reproducible local capture format
+- deterministic adapter tests with recorded fixtures
+
+Status: TODO

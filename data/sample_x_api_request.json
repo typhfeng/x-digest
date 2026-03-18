@@ -1,0 +1,7 @@
+{
+  "mode": "recent_search",
+  "query": "(inference OR evaluation OR benchmark) lang:en -is:retweet",
+  "max_results": 25,
+  "max_pages": 1,
+  "start_time": "2026-03-10T00:00:00Z"
+}

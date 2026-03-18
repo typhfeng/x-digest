@@ -15,7 +15,8 @@ The pipeline is modular and keeps deterministic behavior as the default:
 - `src/adapters/registry.py` resolves explicit source names to adapters.
 - `src/adapters/json_source.py` keeps local JSON as the working default source.
 - `src/adapters/archive_source.py` ingests realistic archive exports and maps alternate field names into the existing raw-post contract while preserving archive metadata.
-- `src/adapters/x_api_source.py` and `src/adapters/scraping_source.py` remain placeholders that fail clearly until implemented.
+- `src/adapters/x_api_source.py` loads real posts from the X API using a local request config plus bearer-token authentication.
+- `src/adapters/scraping_source.py` remains a placeholder that fails clearly until implemented.
 - `src/core/normalize.py` converts loose JSON objects into normalized `Post` records.
 - `src/core/filter.py` removes short or duplicate posts and optionally applies deterministic ISO time-window filtering.
 - `src/core/cluster.py` assigns heuristic topics with a simple keyword map.
@@ -49,6 +50,43 @@ Archive imports use the same pipeline and output format:
 python3 -m src.cli --source archive --input data/sample_archive.json --output output/sample_archive_digest.md --memory-dir state/memory
 ```
 
+X API ingestion uses a local request JSON plus a bearer token:
+
+```bash
+export X_DIGEST_X_API_BEARER_TOKEN=your_token_here
+python3 -m src.cli --source x_api --input data/sample_x_api_request.json --output output/sample_x_api_digest.md --memory-dir state/memory
+```
+
+Sample request config (`data/sample_x_api_request.json`):
+
+```json
+{
+  "mode": "recent_search",
+  "query": "(inference OR evaluation OR benchmark) lang:en -is:retweet",
+  "max_results": 25,
+  "max_pages": 1,
+  "start_time": "2026-03-10T00:00:00Z"
+}
+```
+
+Supported request modes:
+
+- `recent_search` with required `query`
+- `user_tweets` with required `user_id`
+
+Optional request fields:
+
+- `max_results` (1-100)
+- `max_pages` (1-20)
+- `start_time`, `end_time`, `since_id`, `until_id`
+- `exclude` (`replies`, `retweets`) for `user_tweets`
+- `base_url` and `timeout_seconds` for custom environments
+
+Additional environment variables:
+
+- `X_DIGEST_X_API_TIMEOUT` (default `20`)
+- `X_DIGEST_X_API_BASE_URL` (default `https://api.x.com/2`)
+
 Time-window filtering is optional and works across supported sources:
 
 ```bash
@@ -69,7 +107,7 @@ Available source names:
 
 - `json` for the current local JSON workflow
 - `archive` for imported archive JSON with realistic alternate field names
-- `x_api` placeholder for future API ingestion
+- `x_api` for real X API ingestion via request config JSON
 - `scraping` placeholder for future browser-assisted ingestion
 
 Selecting a placeholder source currently returns a clear error and exits without changing the pipeline.
@@ -152,5 +190,5 @@ The deterministic local pipeline still handles ingestion, normalization, filteri
 - Topic clustering is still keyword-based and intentionally simple.
 - Ranking remains local and explainable rather than learned.
 - Only an OpenAI-compatible provider is implemented in Phase 3.
-- The archive adapter currently targets local JSON exports only; real API and scraping adapters are still placeholders.
+- Scraping remains a deliberate placeholder due brittleness and maintenance overhead.
 - Research memory is still a single local JSON file; there is no database, concurrency control, or cross-machine sync yet.

@@ -1,4 +1,5 @@
 import io
+import json
 import os
 import tempfile
 import unittest
@@ -7,6 +8,20 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.cli import main
+
+
+class _FakeHttpResponse:
+    def __init__(self, payload: dict[str, object]) -> None:
+        self._body = json.dumps(payload).encode("utf-8")
+
+    def read(self) -> bytes:
+        return self._body
+
+    def __enter__(self) -> "_FakeHttpResponse":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool:
+        return False
 
 
 class CliTests(unittest.TestCase):
@@ -105,6 +120,63 @@ class CliTests(unittest.TestCase):
             self.assertIn("@signalboost", content)
             self.assertIn("Wrote digest to", stdout.getvalue())
 
+    def test_cli_accepts_x_api_source_with_mocked_http(self) -> None:
+        request_payload = {
+            "mode": "recent_search",
+            "query": "from:researchops -is:retweet",
+            "max_results": 10,
+            "max_pages": 1,
+        }
+        api_payload = {
+            "data": [
+                {
+                    "id": "101",
+                    "text": "Deterministic adapter boundaries help keep ranking changes isolated from external data loading paths.",
+                    "author_id": "u1",
+                    "created_at": "2026-03-17T10:00:00Z",
+                    "public_metrics": {"like_count": 4},
+                }
+            ],
+            "includes": {
+                "users": [{"id": "u1", "username": "researchops"}],
+            },
+            "meta": {},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            request_path = Path(tmp_dir) / "x_request.json"
+            output_path = Path(tmp_dir) / "x_digest.md"
+            memory_dir = Path(tmp_dir) / "memory"
+            request_path.write_text(json.dumps(request_payload), encoding="utf-8")
+
+            with patch.dict(
+                os.environ,
+                {"X_DIGEST_X_API_BEARER_TOKEN": "token-value"},
+                clear=True,
+            ):
+                with patch(
+                    "src.adapters.x_api_source.urllib_request.urlopen",
+                    return_value=_FakeHttpResponse(api_payload),
+                ):
+                    exit_code = main(
+                        [
+                            "--source",
+                            "x_api",
+                            "--input",
+                            str(request_path),
+                            "--output",
+                            str(output_path),
+                            "--memory-dir",
+                            str(memory_dir),
+                        ]
+                    )
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(output_path.exists())
+            content = output_path.read_text(encoding="utf-8")
+            self.assertIn("Source Path: `x_api:recent_search:from:researchops -is:retweet`", content)
+            self.assertIn("@researchops", content)
+
     def test_cli_applies_time_window(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = Path(tmp_dir) / "digest.md"
@@ -158,7 +230,7 @@ class CliTests(unittest.TestCase):
         stderr = io.StringIO()
 
         with redirect_stderr(stderr):
-            exit_code = main(["--source", "x_api"])
+            exit_code = main(["--source", "scraping"])
 
         self.assertEqual(exit_code, 2)
         self.assertIn("Source error:", stderr.getvalue())
