@@ -9,7 +9,7 @@ Key Topics: software, ai
 
 1 selected post covering adapters, apis, pipeline. Top score 86.
 
-Memory: recurring topic (seen in 1 prior digest)
+Memory: recurring topic (seen in 5 prior digests)
 
 ### 1. A good digest pipeline separates adapters from scoring logic so...
 Date: 2026-03-08
@@ -26,7 +26,7 @@ Date: 2026-03-08
 
 2 selected posts covering benchmark, embeddings, evaluation. Top score 63.
 
-Memory: recurring topic (seen in 1 prior digest)
+Memory: recurring topic (seen in 5 prior digests)
 
 ### 1. Open-source evaluation runs are getting faster because teams now cache...
 Date: 2026-03-10
